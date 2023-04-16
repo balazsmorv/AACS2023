@@ -4,7 +4,10 @@ import os
 import math
 import numpy as np
 from PIL import Image
-
+import PIL
+import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes
+from mpl_toolkits.axes_grid1.inset_locator import mark_inset
 from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras.preprocessing.image import load_img
@@ -96,19 +99,15 @@ def plot_results(img, prefix, title):
     plt.savefig(str(prefix) + "-" + title + ".png")
 
 
-def run_model(test_path):
+def run_model(model_path, images):
     
     total_bicubic_psnr = 0.0
     total_test_psnr = 0.0
-    
-    test_img_paths = sorted(
-    [
-        os.path.join(test_path, fname)
-        for fname in os.listdir(test_path)
-        if fname.endswith(".jpg")
-    ])
-    for index, test_img_path in enumerate(test_img_paths):
-        img = load_img(test_img_path)
+
+    model = load_model(model_path=model_path)
+    model.trainable = False
+
+    for index, img in enumerate(images):
         lowres_input = get_lowres_image(img, upscale_factor)
         w = lowres_input.size[0] * upscale_factor
         h = lowres_input.size[1] * upscale_factor
@@ -129,7 +128,7 @@ def run_model(test_path):
         )
         print("PSNR of predict and high resolution is %.4f" % test_psnr)
         
-        if index % 5000 = 0:
+        if index % 5000 == 0:
             plot_results(lowres_img, index, "lowres")
             plot_results(highres_img, index, "highres")
             plot_results(prediction, index, "prediction")
