@@ -15,6 +15,7 @@ from tensorflow.keras.preprocessing.image import array_to_img
 from tensorflow.keras.preprocessing.image import img_to_array
 from tensorflow.keras.preprocessing import image_dataset_from_directory
 from einops import rearrange, reduce
+from tqdm import tqdm
 
 crop_size = 256
 upscale_factor = 4
@@ -81,11 +82,11 @@ def plot_results(img, prefix, title):
 
     plt.title(title)
     # zoom-factor: 2.0, location: upper-left
-    axins = zoomed_inset_axes(ax, 2, loc=2)
+    axins = zoomed_inset_axes(ax, 2, loc=10)
     axins.imshow(img_array[::-1], origin="lower")
 
     # Specify the limits.
-    x1, x2, y1, y2 = 200, 300, 100, 200
+    x1, x2, y1, y2 = 100, 150, 100, 150
     # Apply the x-limits.
     axins.set_xlim(x1, x2)
     # Apply the y-limits.
@@ -99,7 +100,7 @@ def plot_results(img, prefix, title):
     plt.savefig(str(prefix) + "-" + title + ".png")
 
 
-def run_model(model_path, images):
+def run_model(model_path, images, experimental=True):
     
     total_bicubic_psnr = 0.0
     total_test_psnr = 0.0
@@ -107,7 +108,7 @@ def run_model(model_path, images):
     model = load_model(model_path=model_path)
     model.trainable = False
 
-    for index, img in enumerate(images):
+    for index, img in tqdm(enumerate(images)):
         lowres_input = get_lowres_image(img, upscale_factor)
         w = lowres_input.size[0] * upscale_factor
         h = lowres_input.size[1] * upscale_factor
@@ -123,15 +124,21 @@ def run_model(model_path, images):
         total_bicubic_psnr += bicubic_psnr
         total_test_psnr += test_psnr
 
-        print(
-            "PSNR of low resolution image and high resolution image is %.4f" % bicubic_psnr
-        )
-        print("PSNR of predict and high resolution is %.4f" % test_psnr)
+        if experimental:
+            print("PSNR of low resolution image and high resolution image is %.4f" % bicubic_psnr)
+            print("PSNR of predict and high resolution is %.4f" % test_psnr)
         
-        if index % 5000 == 0:
-            plot_results(lowres_img, index, "lowres")
-            plot_results(highres_img, index, "highres")
-            plot_results(prediction, index, "prediction")
+        if experimental:
+            if index % 5000 == 0:
+                plot_results(lowres_img, index, "lowres")
+                plot_results(highres_img, index, "highres")
+                plot_results(prediction, index, "prediction")
     
-    print("Avg. PSNR of lowres images is %.4f" % (total_bicubic_psnr / (index+1)))
-    print("Avg. PSNR of reconstructions is %.4f" % (total_test_psnr / (index+1)))
+    if experimental:
+        print("Avg. PSNR of lowres images is %.4f" % (total_bicubic_psnr / (index+1)))
+        print("Avg. PSNR of reconstructions is %.4f" % (total_test_psnr / (index+1)))
+    
+    if not experimental:
+        return (total_bicubic_psnr / (index+1), (total_test_psnr / (index+1)))
+    else: 
+        return None
