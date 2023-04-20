@@ -1,0 +1,3 @@
+[submodule "HAT/HAT"]
+	path = HAT/HAT
+	url = git@github.com:XPixelGroup/HAT.git
