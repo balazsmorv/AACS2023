@@ -16,6 +16,8 @@ from tensorflow.keras.preprocessing.image import img_to_array
 from tensorflow.keras.preprocessing import image_dataset_from_directory
 from einops import rearrange, reduce
 from tqdm import tqdm
+from skimage.metrics import structural_similarity as ssim
+from skimage.metrics import mean_squared_error
 
 crop_size = 256
 upscale_factor = 4
@@ -104,11 +106,13 @@ def run_model(model_path, images, experimental=True):
     
     total_bicubic_psnr = 0.0
     total_test_psnr = 0.0
+    total_bicubic_ssim = 0.0
+    total_test_ssim = 0.0
 
     model = load_model(model_path=model_path)
     model.trainable = False
 
-    for index, img in tqdm(enumerate(images)):
+    for index, img in enumerate(images):
         lowres_input = get_lowres_image(img, upscale_factor)
         w = lowres_input.size[0] * upscale_factor
         h = lowres_input.size[1] * upscale_factor
@@ -118,15 +122,22 @@ def run_model(model_path, images, experimental=True):
         lowres_img_arr = img_to_array(lowres_img)
         highres_img_arr = img_to_array(highres_img)
         predict_img_arr = img_to_array(prediction)
+        
         bicubic_psnr = tf.image.psnr(lowres_img_arr, highres_img_arr, max_val=255)
         test_psnr = tf.image.psnr(predict_img_arr, highres_img_arr, max_val=255)
+        bicubic_ssim = ssim(im1=highres_img_arr, im2=lowres_img_arr, data_range=lowres_img_arr.max() - lowres_img_arr.min(), channel_axis=2)
+        test_ssim = ssim(im1=highres_img_arr, im2=predict_img_arr, data_range=predict_img_arr.max() - predict_img_arr.min(), channel_axis=2)
         
         total_bicubic_psnr += bicubic_psnr
         total_test_psnr += test_psnr
+        total_bicubic_ssim += bicubic_ssim
+        total_test_ssim += test_ssim
 
         if experimental:
             print("PSNR of low resolution image and high resolution image is %.4f" % bicubic_psnr)
             print("PSNR of predict and high resolution is %.4f" % test_psnr)
+            print("SSIM of low resolution image and high resolution image is %.4f" % bicubic_ssim)
+            print("SSIM of predict and high resolution is %.4f" % test_ssim)
         
         if experimental:
             if index % 5000 == 0:
@@ -137,8 +148,10 @@ def run_model(model_path, images, experimental=True):
     if experimental:
         print("Avg. PSNR of lowres images is %.4f" % (total_bicubic_psnr / (index+1)))
         print("Avg. PSNR of reconstructions is %.4f" % (total_test_psnr / (index+1)))
+        print("Avg. SSIM of lowres images is %.4f" % (total_bicubic_ssim / (index+1)))
+        print("Avg. SSIM of reconstructions is %.4f" % (total_test_ssim / (index+1)))
     
     if not experimental:
-        return (total_bicubic_psnr / (index+1), (total_test_psnr / (index+1)))
+        return (total_bicubic_psnr / (index+1), total_test_psnr / (index+1), total_bicubic_ssim / (index+1), total_test_ssim / (index+1))
     else: 
         return None
