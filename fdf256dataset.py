@@ -16,11 +16,13 @@ class FDF256Dataset(Dataset):
     def __init__(self,
                  dirpath,
                  load_keypoints: bool,
-                 transform):
+                 transform,
+                 load_impath: bool = False):
         dirpath = pathlib.Path(dirpath)
         self.dirpath = dirpath
         self.transform = transform
         self.load_keypoints = load_keypoints
+        self.load_impath = load_impath
         assert self.dirpath.is_dir(),\
             f"Did not find dataset at: {dirpath}"
         image_dir = self.dirpath.joinpath("images")
@@ -63,4 +65,6 @@ class FDF256Dataset(Dataset):
         }
         if self.load_keypoints:
             batch["keypoints"] = landmark
+        if self.load_impath:
+            batch['impath'] = impath
         return batch
