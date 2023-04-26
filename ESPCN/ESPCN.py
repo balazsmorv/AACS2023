@@ -99,7 +99,7 @@ def plot_results(img, prefix, title):
 
     # Make the line.
     mark_inset(ax, axins, loc1=1, loc2=3, fc="none", ec="blue")
-    plt.savefig(str(prefix) + "-" + title + ".png")
+    plt.savefig(str(prefix) + title + ".png")
 
 
 def run_model(model_path, images, experimental=True):
@@ -139,11 +139,11 @@ def run_model(model_path, images, experimental=True):
             print("SSIM of low resolution image and high resolution image is %.4f" % bicubic_ssim)
             print("SSIM of predict and high resolution is %.4f" % test_ssim)
         
-        if experimental:
-            if index % 5000 == 0:
-                plot_results(lowres_img, index, "lowres")
-                plot_results(highres_img, index, "highres")
-                plot_results(prediction, index, "prediction")
+        #if experimental:
+            #if index % 5000 == 0:
+                #plot_results(lowres_img, index, "lowres")
+                #plot_results(highres_img, index, "highres")
+        plot_results(prediction, index, "")
     
     if experimental:
         print("Avg. PSNR of lowres images is %.4f" % (total_bicubic_psnr / (index+1)))
