@@ -140,10 +140,9 @@ def run_model(model_path, images, experimental=True):
             print("SSIM of predict and high resolution is %.4f" % test_ssim)
         
         if experimental:
-            if index % 5000 == 0:
-                plot_results(lowres_img, index, "lowres")
-                plot_results(highres_img, index, "highres")
-                plot_results(prediction, index, "pred")
+            # plot_results(lowres_img, index, "lowres")
+            # plot_results(highres_img, index, "highres")
+            plot_results(prediction, index, "pred")
     
     if experimental:
         print("Avg. PSNR of lowres images is %.4f" % (total_bicubic_psnr / (index+1)))

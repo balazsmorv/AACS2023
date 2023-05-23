@@ -1,0 +1,20 @@
+channels:
+- conda-forge
+dependencies:
+- python=3.9.16
+- pip<=22.3.1
+- pip:
+  - mlflow==2.3
+  - cffi==1.15.1
+  - defusedxml==0.7.1
+  - dill==0.3.6
+  - numpy==1.23.5
+  - packaging==23.0
+  - pandas==2.0.1
+  - pillow==9.4.0
+  - protobuf==4.22.1
+  - requests==2.28.2
+  - scipy==1.9.1
+  - tb-nightly==2.13.0a20230420
+  - tensorflow==2.12.0
+name: mlflow-env

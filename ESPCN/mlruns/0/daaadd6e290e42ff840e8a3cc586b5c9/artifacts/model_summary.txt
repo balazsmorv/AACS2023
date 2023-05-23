@@ -1,0 +1,22 @@
+Model: "model"
+_________________________________________________________________
+ Layer (type)                Output Shape              Param #   
+=================================================================
+ input_1 (InputLayer)        [(None, None, None, 1)]   0         
+                                                                 
+ conv2d (Conv2D)             (None, None, None, 64)    1664      
+                                                                 
+ conv2d_1 (Conv2D)           (None, None, None, 64)    36928     
+                                                                 
+ conv2d_2 (Conv2D)           (None, None, None, 32)    18464     
+                                                                 
+ conv2d_3 (Conv2D)           (None, None, None, 16)    4624      
+                                                                 
+ tf.nn.depth_to_space (TFOpL  (None, None, None, 1)    0         
+ ambda)                                                          
+                                                                 
+=================================================================
+Total params: 61,680
+Trainable params: 61,680
+Non-trainable params: 0
+_________________________________________________________________
